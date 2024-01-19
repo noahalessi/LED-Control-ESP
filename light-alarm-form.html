@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <title>ESP8266 Web Server POST handling</title>
+    <style>
+      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }
+    </style>
+  </head>
+  <body>
+    <h1>Set Light Color /postcolor/</h1><br>
+    <form method="post" enctype="application/x-www-form-urlencoded" action="/postcolor/">
+      <label for="brightness">Brightness (1 - 255):</label>
+      <input type="number" id="brightness" name="brightness" min="1" max="255">
+      <input type="checkbox" id="power1" name="power1" value="power1">
+      <label for="power1"> Power</label><br>
+      <input type="color" id="favcolor" name="favcolor"><br>
+	  <label for="favcolor"> Color</label><br>
+      <input type="submit" value="Submit">
+    </form>
+	<h1>Set Alarm Time /postalarm/</h1><br>
+    <form method="post" enctype="application/x-www-form-urlencoded" action="/postalarm/">
+	<label for="timenow">Select current time:</label>
+	  <input type="time" id="timenow" name="timenow">
+	  <label for="alarm">Select alarm time:</label>
+	  <input type="time" id="alarm" name="alarm">
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
