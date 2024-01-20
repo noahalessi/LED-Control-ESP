@@ -22,6 +22,16 @@ const int led = LED_BUILTIN;
 
 void handleRoot() {
   digitalWrite(led, 1);
+
+  // get the form from the file
+
+  // split the form on {{(var name)}}
+
+  // use the var name to pull values from an interpolation object
+
+  /* {
+    currentTime: val
+  }*/
   
   String form_start = "<html>\
   <head>\
@@ -51,10 +61,31 @@ void handleRoot() {
     <form method=\"get\" action=\"/updatetime/\">\
     <input type=\"submit\" value=\"Update Time\">\
     </form>\
-  <h1>Current Time: ";
+  <h1>Current Time: <span id=\"exact-time\" data-exact-time=\"%MS%\">";
 
-  String form_end = "</h1><br>\
+  String form_end = "</span></h1><br>\
   </body>\
+  <script>
+      const el = document.getElementById(\"exact-time\");
+
+      const exactMS = new Date(
+        Number(el.dataset.exactTime)
+      ).getUTCMilliseconds();
+
+      const realStartTimeMS = Date.now();
+      const diff = realStartTimeMS - exactMS;
+
+      setInterval(async () => {
+        const result = await fetch('/requesttime').then(r => r.json())
+
+        const updatedTime = result.currentTime
+
+        el.textContent = updatedTime
+        // const updatedTime = new Date(Date.now() + diff);
+
+        // el.textContent = `${updatedTime.getHours()}:${updatedTime.getMinutes()}:${updatedTime.getSeconds()}`;
+      }, 1000);
+    </script>
   </html>";
 
   String postForms = String(form_start+Timekeeper_GetFormmattedTime()+form_end);
@@ -171,7 +202,7 @@ void handleUpdate()
   }else
   {
     local_time_update();
-    String message = String("Updated time: " + Timekeeper_GetFormmattedTime());;
+    String message = String("Updated time: " + Timekeeper_GetFormmattedTime());
     server.send(200, "text/plain", message);
   }
 }
@@ -189,6 +220,14 @@ void handleNotFound() {
   for (uint8_t i = 0; i < server.args(); i++) { message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
   server.send(404, "text/plain", message);
   digitalWrite(led, 0);
+}
+
+void handleTimeRequest() {
+  if (server.method() != HTTP_POST) {
+    server.send(200, "application/json", "{\"nope\": true}");
+  }
+
+  server.send(200, "application/json", printf("{\"currentTime\": \"%s\"}", Timekeeper_GetFormmattedTime()));
 }
 
 void wifi_setup() {
@@ -213,6 +252,7 @@ void wifi_setup() {
   server.on("/postcolor/",handleColor);
   server.on("/postalarm/",handleAlarm);
   server.on("/updatetime/",handleUpdate);
+  server.on("/requesttime/",handleTimeRequest);
 
   server.onNotFound(handleNotFound);
 
