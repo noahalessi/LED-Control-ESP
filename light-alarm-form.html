@@ -58,8 +58,10 @@
       const diff = realStartTimeMS - exactMS;
 
       setInterval(async () => {
-        const result = await fetch("http://localhost:7500/requesttime", {
-          mode: "no-cors",
+        const result = await fetch("http://localhost:7500", {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }).then((r) => r.json());
 
         const updatedTime = result.currentTime;
